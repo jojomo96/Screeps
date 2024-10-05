@@ -1,14 +1,14 @@
 var roleFighter = {
 
     /** @param {Creep} creep **/
-    run: function(creep) {
+    run: function (creep) {
 
         // Find the closest hostile creep in the room
         var target = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS);
 
         // If there's a hostile target, attack it
-        if(target) {
-            if(creep.attack(target) == ERR_NOT_IN_RANGE) {
+        if (target) {
+            if (creep.attack(target) == ERR_NOT_IN_RANGE) {
                 // Move towards the target if it's not in range
                 creep.moveTo(target, {visualizePathStyle: {stroke: '#ff0000'}});
                 creep.say('⚔️ Attack!');
@@ -18,7 +18,7 @@ var roleFighter = {
         } else {
             // If no hostile creeps are found, patrol to a point or rest
             var flag = Game.flags['PatrolFlag']; // Place a flag named 'PatrolFlag' in the room for patrolling
-            if(flag) {
+            if (flag) {
                 creep.moveTo(flag, {visualizePathStyle: {stroke: '#ffffff'}});
                 creep.say('🚶 Patrol');
             } else {
