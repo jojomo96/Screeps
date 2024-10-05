@@ -1,4 +1,4 @@
-var utils = require('role.utils')
+
 
 var roleBuilder = {
 
@@ -25,7 +25,7 @@ var roleBuilder = {
                 }
             }
         } else {
-            utils.findAndMineClosestResource(creep);
+            creep.findAndMineClosestResource(creep);
         }
     }
 };

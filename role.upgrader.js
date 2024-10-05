@@ -1,4 +1,3 @@
-var utils = require('role.utils');
 
 var roleUpgrader = {
 
@@ -19,7 +18,7 @@ var roleUpgrader = {
                 creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
             }
         } else {
-            utils.collectStoredEnergy(creep);
+            creep.collectStoredEnergy(creep);
         }
     }
 };

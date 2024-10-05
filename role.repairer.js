@@ -1,16 +1,14 @@
-var utils = require('role.utils');
-
 var roleRepairer = {
 
     run: function (creep) {
         if (creep.store[RESOURCE_ENERGY] === 0) {
-            utils.collectStoredEnergy(creep);
+            creep.collectStoredEnergy(creep);
         } else {
 
             let roads = creep.room.find(FIND_STRUCTURES, {
                 filter: (structure) => (structure.structureType === STRUCTURE_ROAD
-                || structure.structureType === STRUCTURE_CONTAINER
-                )&& structure.hits < structure.hitsMax
+                    || structure.structureType === STRUCTURE_CONTAINER
+                ) && structure.hits < structure.hitsMax
             });
 
             if (roads.length) {

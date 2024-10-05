@@ -6,6 +6,9 @@ var roleRepairer = require('role.repairer');
 var roleMiner = require('role.miner');
 var roleTransporter = require('role.transporter');
 
+// Include the role.utils.js file to ensure prototype methods are available
+require('role.utils');
+
 const roleConfig = {
     harvester: {max: 0, body: [WORK, WORK, CARRY, MOVE], run: roleHarvester.run},
     builder: {max: 0, body: [WORK, CARRY, CARRY, MOVE, MOVE], run: roleBuilder.run},

@@ -1,21 +1,18 @@
-var utils = {
+/**
+ * Finds the closest resource to the given creep and attempts to mine it.
+ * If the resource is not in range, the creep will move towards it.
+ *
+ * @function
+ * @param {Creep} creep - The creep that will find and mine the closest resource.
+ */
+Creep.prototype.findAndMineClosestResource = function (creep) {
+    var source = creep.pos.findClosestByPath(FIND_SOURCES); // Use the updated findClosestResource function
+    if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
+    }
+};
 
-
-    /**
-     * Finds the closest resource to the given creep and attempts to mine it.
-     * If the resource is not in range, the creep will move towards it.
-     *
-     * @function
-     * @param {Creep} creep - The creep that will find and mine the closest resource.
-     */
-    findAndMineClosestResource: function (creep) {
-        var source = creep.pos.findClosestByPath(FIND_SOURCES); // Use the updated findClosestResource function
-        if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
-        }
-    },
-
-    collectStoredEnergy: function (creep) {
+Creep.prototype.collectStoredEnergy = function (creep) {
         let target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
             filter: (structure) => {
                 return (
@@ -33,40 +30,44 @@ var utils = {
         } else {
             creep.say('waiting');
         }
-    },
+    };
 
-    collectDroppedEnergy: function (creep) {
-        let droppedEnergy = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
-            filter: (resource) => resource.resourceType === RESOURCE_ENERGY && resource.amount > 200
-        });
+Creep.prototype.collectDroppedEnergy = function (creep) {
+    let droppedEnergy = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
+        filter: (resource) => resource.resourceType === RESOURCE_ENERGY && resource.amount > 200
+    });
 
-        if (droppedEnergy) {
-            if (creep.pickup(droppedEnergy) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(droppedEnergy, {visualizePathStyle: {stroke: '#ffaa00'}});
-            }
-        } else {
-            creep.say('waiting');
+    if (droppedEnergy) {
+        if (creep.pickup(droppedEnergy) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(droppedEnergy, {visualizePathStyle: {stroke: '#ffaa00'}});
         }
-    },
-
-    depositEnergy: function (creep) {
-        var targets = creep.room.find(FIND_STRUCTURES, {
-            filter: (structure) => {
-                return (structure.structureType === STRUCTURE_EXTENSION
-                    || structure.structureType === STRUCTURE_SPAWN
-                    || structure.structureType === STRUCTURE_TOWER
-                    || structure.structureType === STRUCTURE_CONTAINER) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-            }
-        });
-        if (targets.length > 0) {
-            if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
-            }
-        } else {
-            creep.say('🔄');
-        }
+    } else {
+        creep.say('waiting');
     }
-
 };
 
-module.exports = utils;
+Creep.prototype.depositEnergy = function (creep, structureTypes) {
+    // Find all structures that match the given types and have free capacity
+    let targets = creep.room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+            return structureTypes.some(typeObj => typeObj.type === structure.structureType) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+        }
+    });
+
+    if (targets.length > 0) {
+        // Sort targets based on the priority of their structure type
+        targets.sort((a, b) => {
+            let aPriority = structureTypes.find(typeObj => typeObj.type === a.structureType).priority;
+            let bPriority = structureTypes.find(typeObj => typeObj.type === b.structureType).priority;
+            return aPriority - bPriority;
+        });
+
+        // Transfer energy to the highest priority target
+        if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
+        }
+    } else {
+        creep.say('🔄');
+    }
+};
+
