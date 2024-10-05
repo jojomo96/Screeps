@@ -18,9 +18,10 @@ var utils = {
     collectStoredEnergy: function (creep) {
         let target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
             filter: (structure) => {
-                return (structure.structureType === STRUCTURE_EXTENSION
+                return (
+                    structure.structureType === STRUCTURE_CONTAINER
+                    || structure.structureType === STRUCTURE_EXTENSION
                     || structure.structureType === STRUCTURE_SPAWN
-                    || structure.structureType === STRUCTURE_CONTAINER
                 ) && structure.store.getUsedCapacity(RESOURCE_ENERGY) >= 50;
             }
         });
@@ -29,12 +30,14 @@ var utils = {
             if (creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                 creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
             }
+        } else {
+            creep.say('waiting');
         }
     },
 
     collectDroppedEnergy: function (creep) {
         let droppedEnergy = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
-            filter: (resource) => resource.resourceType === RESOURCE_ENERGY && resource.amount > 100
+            filter: (resource) => resource.resourceType === RESOURCE_ENERGY && resource.amount > 200
         });
 
         if (droppedEnergy) {
@@ -43,6 +46,24 @@ var utils = {
             }
         } else {
             creep.say('waiting');
+        }
+    },
+
+    depositEnergy: function (creep) {
+        var targets = creep.room.find(FIND_STRUCTURES, {
+            filter: (structure) => {
+                return (structure.structureType === STRUCTURE_EXTENSION
+                    || structure.structureType === STRUCTURE_SPAWN
+                    || structure.structureType === STRUCTURE_TOWER
+                    || structure.structureType === STRUCTURE_CONTAINER) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+            }
+        });
+        if (targets.length > 0) {
+            if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
+            }
+        } else {
+            creep.say('🔄');
         }
     }
 

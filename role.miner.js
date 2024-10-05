@@ -22,7 +22,6 @@ let roleMiner = {
                         (memorySource.miners === Memory[closestSource.id].miners && memorySource.distanceToSpawn < Memory[closestSource.id].distanceToSpawn)) {
                         closestSource = source;
                         minDistance = memorySource.distanceToSpawn;
-                        console.log(`Setting closest source to ${source.id}`);
                     }
                 }
             });
@@ -49,7 +48,6 @@ let roleMiner = {
         if (creep.ticksToLive < 100 && !creep.memory.dying) {
             Memory[source.id].miners--;
             console.log('Miner died');
-            console.log(Memory[source.id].miners);
             creep.memory.dying = true;
         }
     }
