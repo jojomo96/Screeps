@@ -5,18 +5,18 @@ var roleFighter = require('role.fighter');
 var roleRepairer = require('role.repairer');
 
 const roleConfig = {
-    harvester: { max: 3, body: [WORK, WORK, CARRY, MOVE] },
-    builder: { max: 3, body: [WORK, CARRY, CARRY, MOVE, MOVE] },
-    upgrader: { max: 3, body: [WORK, WORK, CARRY, MOVE, MOVE] },
-    fighter: { max: 0, body: [RANGED_ATTACK , MOVE, TOUGH] }, // Example fighter config
-    repairer : {max : 1, body:[WORK, CARRY, CARRY, MOVE] }
+    harvester: {max: 3, body: [WORK, WORK, CARRY, MOVE]},
+    builder: {max: 3, body: [WORK, CARRY, CARRY, MOVE, MOVE]},
+    upgrader: {max: 3, body: [WORK, WORK, CARRY, MOVE, MOVE]},
+    fighter: {max: 0, body: [RANGED_ATTACK, MOVE, TOUGH]}, // Example fighter config
+    repairer: {max: 1, body: [WORK, CARRY, CARRY, MOVE]}
 }
 
 module.exports.loop = function () {
-    
+
     // Clear non-existing creeps from memory
-    for(var name in Memory.creeps) {
-        if(!Game.creeps[name]) {
+    for (var name in Memory.creeps) {
+        if (!Game.creeps[name]) {
             delete Memory.creeps[name];
             console.log('Clearing non-existing creep memory:', name);
         }
@@ -30,7 +30,7 @@ module.exports.loop = function () {
         // Filter creeps based on their role
         const creepsOfRole = _.filter(Game.creeps, (creep) => creep.memory.role === role);
         //console.log(`${role.charAt(0).toUpperCase() + role.slice(1)}s: ${creepsOfRole.length}`);
-    
+
         // If the number of creeps for this role is less than the max amount, spawn a new one
         if (creepsOfRole.length < maxAmount) {
             const newName = `${role.charAt(0).toUpperCase() + role.slice(1)}${Game.time}`;
@@ -38,17 +38,17 @@ module.exports.loop = function () {
             Game.spawns['Spawn1'].spawnCreep(bodyParts, newName, {memory: {role: role}});
         }
     }
-    
+
     // Display spawning creep info
-    if(Game.spawns['Spawn1'].spawning) { 
+    if (Game.spawns['Spawn1'].spawning) {
         var spawningCreep = Game.creeps[Game.spawns['Spawn1'].spawning.name];
         Game.spawns['Spawn1'].room.visual.text(
             '🛠️' + spawningCreep.memory.role,
-            Game.spawns['Spawn1'].pos.x + 1, 
-            Game.spawns['Spawn1'].pos.y, 
+            Game.spawns['Spawn1'].pos.x + 1,
+            Game.spawns['Spawn1'].pos.y,
             {align: 'left', opacity: 0.8});
     }
-    
+
     // Tower logic for repairing and attacking
     // var tower = Game.getObjectById('9b1b384d824e5000cfcd0057');
     // if(tower) {
@@ -66,21 +66,21 @@ module.exports.loop = function () {
     // }
 
     // Creep role execution
-    for(var name in Game.creeps) {
+    for (var name in Game.creeps) {
         var creep = Game.creeps[name];
-        if(creep.memory.role === 'harvester') {
+        if (creep.memory.role === 'harvester') {
             roleHarvester.run(creep);
         }
-        if(creep.memory.role === 'upgrader') {
+        if (creep.memory.role === 'upgrader') {
             roleUpgrader.run(creep);
         }
-        if(creep.memory.role === 'builder') {
+        if (creep.memory.role === 'builder') {
             roleBuilder.run(creep);
         }
-        if(creep.memory.role === 'fighter'){
+        if (creep.memory.role === 'fighter') {
             roleHarvester.run(creep);
         }
-        if(creep.memory.role === 'repairer'){
+        if (creep.memory.role === 'repairer') {
             roleRepairer.run(creep);
         }
     }
