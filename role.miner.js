@@ -1,58 +1,35 @@
 let roleMiner = {
-    hasCapacityLeft: function (sourceMemory) {
+    hasCapacityLeft: (sourceMemory) => {
         return sourceMemory.miners < sourceMemory.maxCapacity;
     },
 
-    setSourceIfNull: function (creep) {
+    setSourceIfNull: (creep) => {
         if (!creep.memory.source) {
             let sources = creep.room.find(FIND_SOURCES);
             let closestSource = null;
             let minDistance = Infinity;
 
-            for (let i = 0; i < sources.length; i++) {
-                if (!Memory[sources[i].id]) {
-                    console.log(`Memory for source ${sources[i].id} does not exist`);
-                    continue;
+            sources.forEach((source) => {
+                let memorySource = Memory[source.id];
+                if (!memorySource) {
+                    console.log(`Memory for source ${source.id} does not exist`);
+                    return;
                 }
-                let memorySource = Memory[sources[i].id];
 
-                if (!closestSource && hasCapacityLeft(memorySource)) {
-                    closestSource = sources[i];
-                    minDistance = memorySource.distanceToSpawn;
-                    console.log(`Setting closest source to ${sources[i].id}`);
-                } else if (closestSource && hasCapacityLeft(memorySource)) {
-                    let closestSourceMemory = Memory[closestSource.id];
-                    if(memorySource.miners < closestSourceMemory.miners ||
-                        (memorySource.miners === closestSourceMemory.miners && memorySource.distanceToSpawn < closestSourceMemory.distanceToSpawn )){
-                        closestSource = sources[i];
+                if (roleMiner.hasCapacityLeft(memorySource)) {
+                    if (!closestSource ||
+                        memorySource.miners < Memory[closestSource.id].miners ||
+                        (memorySource.miners === Memory[closestSource.id].miners && memorySource.distanceToSpawn < Memory[closestSource.id].distanceToSpawn)) {
+                        closestSource = source;
                         minDistance = memorySource.distanceToSpawn;
-                        console.log(`asdasd Setting closest source to ${sources[i].id}`);
+                        console.log(`Setting closest source to ${source.id}`);
                     }
-                } else {
-                    console.log('No closest source');
                 }
-            }
-            // if (memorySource.miners < memorySource.maxCapacity &&
-            //     (distance < minDistance || (closestSource && memorySource.miners < Memory[closestSource.id].miners))) {
-            //     if (!closestSource) {
-            //         closestSource = sources[i];
-            //         minDistance = distance;
-            //     } else {
-            //         if (memorySource.miners < Memory[closestSource.id].miners ||
-            //             (memorySource.miners === Memory[closestSource.id].miners && distance < minDistance)) {
-            //             console.log(`Setting closest source to ${sources[i].id}`);
-            //             closestSource = sources[i];
-            //             minDistance = distance;
-            //         }
-            //     }
-            // }
+            });
+
             if (closestSource) {
-                if (!Memory[closestSource.id]) {
-                    console.log(`Memory for source ${closestSource.id} does not exist`);
-                } else {
-                    Memory[closestSource.id].miners++;
-                    creep.memory.source = closestSource.id;
-                }
+                Memory[closestSource.id].miners++;
+                creep.memory.source = closestSource.id;
             } else {
                 console.log(`No available source found for creep ${creep.name}`);
             }
@@ -60,7 +37,7 @@ let roleMiner = {
     },
 
     run: (creep) => {
-        setSourceIfNull(creep);
+        roleMiner.setSourceIfNull(creep);
 
         let source = Game.getObjectById(creep.memory.source);
         if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
@@ -77,8 +54,5 @@ let roleMiner = {
         }
     }
 };
-
-// Destructure methods from roleMiner
-const { hasCapacityLeft, setSourceIfNull } = roleMiner;
 
 module.exports = roleMiner;
