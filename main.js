@@ -2,12 +2,14 @@ var roleHarvester = require('role.harvester');
 var roleUpgrader = require('role.upgrader');
 var roleBuilder = require('role.builder');
 var roleFighter = require('role.fighter');
+var roleRepairer = require('role.repairer');
 
 const roleConfig = {
     harvester: { max: 3, body: [WORK, WORK, CARRY, MOVE] },
     builder: { max: 3, body: [WORK, CARRY, CARRY, MOVE, MOVE] },
-    upgrader: { max: 3, body: [WORK, CARRY, MOVE] },
-    fighter: { max: 0, body: [RANGED_ATTACK , MOVE, TOUGH] } // Example fighter config
+    upgrader: { max: 3, body: [WORK, WORK, CARRY, MOVE, MOVE] },
+    fighter: { max: 0, body: [RANGED_ATTACK , MOVE, TOUGH] }, // Example fighter config
+    repairer : {max : 1, body:[WORK, CARRY, CARRY, MOVE] }
 }
 
 module.exports.loop = function () {
@@ -26,7 +28,7 @@ module.exports.loop = function () {
         const bodyParts = roleConfig[role].body;
 
         // Filter creeps based on their role
-        const creepsOfRole = _.filter(Game.creeps, (creep) => creep.memory.role == role);
+        const creepsOfRole = _.filter(Game.creeps, (creep) => creep.memory.role === role);
         //console.log(`${role.charAt(0).toUpperCase() + role.slice(1)}s: ${creepsOfRole.length}`);
     
         // If the number of creeps for this role is less than the max amount, spawn a new one
@@ -48,35 +50,38 @@ module.exports.loop = function () {
     }
     
     // Tower logic for repairing and attacking
-    var tower = Game.getObjectById('9b1b384d824e5000cfcd0057');
-    if(tower) {
-        var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-            filter: (structure) => structure.hits < structure.hitsMax
-        });
-        if(closestDamagedStructure) {
-            tower.repair(closestDamagedStructure);
-        }
-
-        var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-        if(closestHostile) {
-            tower.attack(closestHostile);
-        }
-    }
+    // var tower = Game.getObjectById('9b1b384d824e5000cfcd0057');
+    // if(tower) {
+    //     var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+    //         filter: (structure) => structure.hits < structure.hitsMax
+    //     });
+    //     if(closestDamagedStructure) {
+    //         tower.repair(closestDamagedStructure);
+    //     }
+    //
+    //     var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+    //     if(closestHostile) {
+    //         tower.attack(closestHostile);
+    //     }
+    // }
 
     // Creep role execution
     for(var name in Game.creeps) {
         var creep = Game.creeps[name];
-        if(creep.memory.role == 'harvester') {
+        if(creep.memory.role === 'harvester') {
             roleHarvester.run(creep);
         }
-        if(creep.memory.role == 'upgrader') {
+        if(creep.memory.role === 'upgrader') {
             roleUpgrader.run(creep);
         }
-        if(creep.memory.role == 'builder') {
+        if(creep.memory.role === 'builder') {
             roleBuilder.run(creep);
         }
-        if(creep.memory.role == 'fighter'){
+        if(creep.memory.role === 'fighter'){
             roleHarvester.run(creep);
+        }
+        if(creep.memory.role === 'repairer'){
+            roleRepairer.run(creep);
         }
     }
 }
