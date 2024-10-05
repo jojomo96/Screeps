@@ -39,7 +39,7 @@ function clearDeadCreeps() {
 }
 
 function spawnMessage() {
-    if (Game.spawns['Spawn1'].spawning) {
+    if (Game.spawns['Spawn1'] && Game.spawns['Spawn1'].spawning) {
         let spawningCreep = Game.creeps[Game.spawns['Spawn1'].spawning.name];
         Game.spawns['Spawn1'].room.visual.text('🛠️' + spawningCreep.memory.role, Game.spawns['Spawn1'].pos.x + 1, Game.spawns['Spawn1'].pos.y, {
             align: 'left',
@@ -85,7 +85,9 @@ module.exports.loop = function () {
 
             _.forEach(sources, function (source) {
                 if (!Memory[source.id]) {
-                    let distanceToSpawn = source.pos.getRangeTo(spawn);
+                    // TODO: Update when room layout changes
+                    const path = PathFinder.search(spawn.pos, {pos: source.pos, range: 1});
+                    let distanceToSpawn = path.cost;
                     Memory[source.id] = {
                         miners: 0, maxCapacity: countEmptySpacesAroundSource(source), distanceToSpawn: distanceToSpawn
                     };
@@ -117,7 +119,7 @@ module.exports.loop = function () {
             // If the number of creeps for this role is less than the max amount, schedule a new spawn
             if (creepsOfRole.length < maxAmount) {
                 const newName = `${role.charAt(0).toUpperCase() + role.slice(1)}${Game.time}`;
-                if (!Game.spawns['Spawn1'].spawning) {
+                if (Game.spawns['Spawn1'] && !Game.spawns['Spawn1'].spawning) {
                     // Schedule the spawn for the next tick
                     Memory.scheduledSpawn = { role, bodyParts, newName };
                     console.log(`Scheduled new ${role}: ${newName} for next tick`);
