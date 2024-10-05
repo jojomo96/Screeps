@@ -4,14 +4,16 @@ var roleBuilder = require('role.builder');
 var roleFighter = require('role.fighter');
 var roleRepairer = require('role.repairer');
 var roleMiner = require('role.miner');
+var roleTransporter = require('role.transporter');
 
 const roleConfig = {
-    harvester: {max: 1, body: [WORK, WORK, CARRY, MOVE], run: roleHarvester.run},
+    harvester: {max: 0, body: [WORK, WORK, CARRY, MOVE], run: roleHarvester.run},
     builder: {max: 0, body: [WORK, CARRY, CARRY, MOVE, MOVE], run: roleBuilder.run},
-    upgrader: {max: 0, body: [WORK, WORK, CARRY, CARRY, MOVE, MOVE], run: roleUpgrader.run},
+    upgrader: {max: 4, body: [WORK, CARRY, CARRY, MOVE, MOVE], run: roleUpgrader.run},
     fighter: {max: 0, body: [RANGED_ATTACK, MOVE, TOUGH], run: roleFighter.run},
-    repairer: {max: 0, body: [WORK, CARRY, CARRY, MOVE], run: roleRepairer.run},
-    miner: {max: 8, body: [WORK, WORK, MOVE], run: roleMiner.run},
+    repairer: {max: 1, body: [WORK, CARRY, CARRY, MOVE], run: roleRepairer.run},
+    miner: {max: 3, body: [WORK, WORK, MOVE], run: roleMiner.run},
+    transporter: {max: 3, body: [CARRY, CARRY, MOVE, MOVE], run: roleTransporter.run},
 }
 
 function runCreeps() {
@@ -68,9 +70,7 @@ function countEmptySpacesAroundSource(source) {
     return emptySpaces;
 }
 
-module.exports.loop = function () {
-    clearDeadCreeps();
-
+function initializeSourceMemory() {
     _.forEach(Game.rooms, function (room) {
         if (room && room.controller && room.controller.my) {
             let sources = room.find(FIND_SOURCES);
@@ -96,6 +96,11 @@ module.exports.loop = function () {
             });
         }
     });
+}
+
+module.exports.loop = function () {
+    clearDeadCreeps();
+    initializeSourceMemory();
 
 // Check if a spawn is scheduled
     if (Memory.scheduledSpawn) {
