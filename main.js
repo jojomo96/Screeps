@@ -1,18 +1,18 @@
-var roleHarvester = require('role.harvester');
-var roleUpgrader = require('role.upgrader');
-var roleBuilder = require('role.builder');
-var roleFighter = require('role.fighter');
-var roleRepairer = require('role.repairer');
-var roleMiner = require('role.miner');
-var roleTransporter = require('role.transporter');
+var roleHarvester = require('roles/role.harvester');
+var roleUpgrader = require('roles/role.upgrader');
+var roleBuilder = require('roles/role.builder');
+var roleFighter = require('roles/role.fighter');
+var roleRepairer = require('roles/role.repairer');
+var roleMiner = require('roles/role.miner');
+var roleTransporter = require('roles/role.transporter');
 
-// Include the role.utils.js file to ensure prototype methods are available
-require('role.utils');
+// Include the role.prototypes.js file to ensure prototype methods are available
+require('roles/role.prototypes');
 
 const roleConfig = {
-    harvester: {max: 0, body: [WORK, WORK, CARRY, MOVE], run: roleHarvester.run},
+    harvester: {max: 1, body: [WORK, WORK, CARRY, MOVE], run: roleHarvester.run},
     builder: {max: 0, body: [WORK, CARRY, CARRY, MOVE, MOVE], run: roleBuilder.run},
-    upgrader: {max: 8, body: [WORK, CARRY, CARRY, MOVE, MOVE], run: roleUpgrader.run},
+    upgrader: {max: 0, body: [WORK, CARRY, CARRY, MOVE, MOVE], run: roleUpgrader.run},
     fighter: {max: 0, body: [RANGED_ATTACK, MOVE, TOUGH], run: roleFighter.run},
     repairer: {max: 1, body: [WORK, CARRY, CARRY, MOVE], run: roleRepairer.run},
     miner: {max: 6, body: [WORK, WORK, MOVE], run: roleMiner.run},
