@@ -46,9 +46,20 @@ Creep.prototype.collectDroppedEnergy = function (creep) {
     }
 };
 
-Creep.prototype.depositEnergy = function (creep, structureTypes) {
+function printError(errorMessage) {
+    console.log(`<span style="color: red;">Error: ${errorMessage}</span>`);
+}
+
+// Improved depositEnergy function with type checking
+Creep.prototype.depositEnergy = function (structureTypes) {
+    // Ensure structureTypes is an array
+    if (!Array.isArray(structureTypes) || !structureTypes.every(typeObj => typeObj.type && typeObj.priority)) {
+        printError('depositEnergy(structureTypes): must be an array of objects with type and priority properties.');
+        return;
+    }
+
     // Find all structures that match the given types and have free capacity
-    let targets = creep.room.find(FIND_STRUCTURES, {
+    let targets = this.room.find(FIND_STRUCTURES, {
         filter: (structure) => {
             return structureTypes.some(typeObj => typeObj.type === structure.structureType) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
         }
@@ -62,12 +73,23 @@ Creep.prototype.depositEnergy = function (creep, structureTypes) {
             return aPriority - bPriority;
         });
 
-        // Transfer energy to the highest priority target
-        if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
+        // Get the highest priority
+        let highestPriority = structureTypes.find(typeObj => typeObj.type === targets[0].structureType).priority;
+
+        // Filter targets to only include those with the highest priority
+        let highestPriorityTargets = targets.filter(target => {
+            return structureTypes.find(typeObj => typeObj.type === target.structureType).priority === highestPriority;
+        });
+
+        // Find the closest target among the highest priority targets
+        let closestTarget = this.pos.findClosestByPath(highestPriorityTargets);
+
+        // Transfer energy to the closest highest priority target
+        if (this.transfer(closestTarget, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            this.moveTo(closestTarget, {visualizePathStyle: {stroke: '#ffffff'}});
         }
     } else {
-        creep.say('🔄');
+        this.say('🔄 No targets');
     }
 };
 
