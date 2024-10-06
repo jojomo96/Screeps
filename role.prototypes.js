@@ -43,12 +43,14 @@ Creep.prototype.collectDroppedEnergy = function () {
     let target = Game.getObjectById(this.memory.target);
 
     if (target) {
-        if (this.pickup(target) === ERR_NOT_IN_RANGE) {
+        let pickup = this.pickup(target);
+        if (pickup === ERR_NOT_IN_RANGE) {
             this.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}, reusePath: 10});
         } else {
-            Memory.assignedRessources[this.memory.target]--;
-            this.memory.target = null;
-
+            if (this.store.getUsedCapacity() === 0) {
+                Memory.assignedRessources[this.memory.target].assignedTransporters -= 1;
+                this.memory.target = null;
+            }
         }
     } else {
         // Reset target if it's no longer valid
@@ -87,16 +89,16 @@ Creep.prototype.depositEnergy = function (structureTypes) {
 
     let targets = this.room.find(FIND_STRUCTURES, {
         filter: (structure) => {
-            return structureTypes.some(typeObj => typeObj.type === structure.structureType) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 100;
+            return structureTypes.some(typeObj => typeObj.type === structure.structureType) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
         }
     });
     let target = targets.length > 0 ? targets[0] : null;
 
-    // If the target is invalid or full, clear it from memory
-    if (target && target.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
-        this.memory.target = null;
-        target = null;
-    }
+    // // If the target is invalid or full, clear it from memory
+    // if (target && target.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
+    //     this.memory.target = null;
+    //     target = null;
+    // }
 
     // If no valid target, find a new one
     if (!target) {

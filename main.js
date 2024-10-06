@@ -12,13 +12,13 @@ require('role.prototypes');
 require('source.prototypes');
 
 const roleConfig = {
-    miner: {max: 4, body: [WORK, WORK, MOVE], run: roleMiner.run},
-    transporter: {max: 4, body: [CARRY, CARRY, MOVE, MOVE], run: roleTransporter.run},
     harvester: {max: 0, body: [WORK, WORK, CARRY, MOVE], run: roleHarvester.run},
-    builder: {max: 0, body: [WORK, CARRY, CARRY, MOVE, MOVE], run: roleBuilder.run},
-    repairer: {max: 0, body: [WORK, CARRY, CARRY, MOVE], run: roleRepairer.run},
-    upgrader: {max: 0, body: [WORK, CARRY, CARRY, MOVE, MOVE], run: roleUpgrader.run},
-    fighter: {max: 5, body: [RANGED_ATTACK, MOVE, TOUGH], run: roleFighter.run},
+    miner: {max: 8, body: [WORK, WORK, MOVE], run: roleMiner.run},
+    transporter: {max: 15, body: [CARRY, CARRY, MOVE, MOVE], run: roleTransporter.run},
+    builder: {max: 2, body: [WORK, CARRY, CARRY, MOVE, MOVE], run: roleBuilder.run},
+    repairer: {max: 2, body: [WORK, CARRY, CARRY, MOVE], run: roleRepairer.run},
+    upgrader: {max: 10, body: [WORK, CARRY, CARRY, MOVE, MOVE], run: roleUpgrader.run},
+    fighter: {max: 0, body: [RANGED_ATTACK, MOVE, TOUGH], run: roleFighter.run},
 }
 
 const CARRY_CAPACITY_TRANSPORTER = 100;
@@ -31,7 +31,7 @@ function assignTransporters() {
     let availableTransporters = filterCreepsByRoleAndConditions('transporter', hasNoTarget, hasNoEnergy, isAlreadySpawned);
 
     if (availableTransporters.length === 0) {
-         console.log('No available transport creeps');
+         // console.log('No available transport creeps');
         return;
     }
 
@@ -54,7 +54,7 @@ function assignTransporters() {
         }
 
         for (let resource of droppedResources) {
-            const requiredTransporters = Math.ceil(resource.amount / CARRY_CAPACITY_TRANSPORTER);
+            const requiredTransporters = Math.floor(resource.amount / CARRY_CAPACITY_TRANSPORTER);
 
             // Initialize tracking for the resource in memory if not present
             if (!Memory.assignedRessources[resource.id]) {
@@ -84,7 +84,7 @@ function assignTransporters() {
                 // Assign the closest transporter and remove it from available list
                 if (closestCreep && !closestCreep.memory.target) {
                     closestCreep.memory.target = resource.id; // Store only the resource ID
-                    Memory.assignedRessources[resource.id].assignedTransporters++;
+                    Memory.assignedRessources[resource.id].assignedTransporters += 1;
 
                     // Remove the transporter from available list
                     availableTransporters = availableTransporters.filter(t => t.id !== closestCreep.id);
@@ -94,6 +94,7 @@ function assignTransporters() {
 
             // If the resource is gone (collected or disappeared), clean up memory
             if (!Game.getObjectById(resource.id)) {
+                console.log(`Resource ${resource.id} is gone`);
                 delete Memory.assignedRessources[resource.id];
             }
         }
